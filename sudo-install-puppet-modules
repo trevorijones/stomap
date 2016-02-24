@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Install required puppet modules in /opt/puppetlabs/puppet/modules
+# witout the --modulepath, the install gets in the default production environment module path
+# Need to be sudoer for this task
+
+set -x
+
+puppet_cmd='/opt/puppetlabs/bin/puppet'
+
+#  sudo /opt/puppetlabs/bin/puppet module --modulepath=/opt/puppetlabs/puppet/modules install puppetlabs-java
+
+for module in \
+  'puppetlabs-stdlib' \
+  'puppetlabs-vcsrepo' \
+  'puppetlabs-apt' \
+  'puppetlabs-postgresql' \
+  'tylerwalts-jdk_oracle' \
+  'camptocamp-archive' \
+  
+do
+  sudo $puppet_cmd module --modulepath=/opt/puppetlabs/puppet/modules install $module
+
+done
+
+# Problematic dependencies 
+

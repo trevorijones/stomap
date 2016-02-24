@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+# Upgrade system with required software
+. ./collect-ssh-con
+
+#Installing Puppet repositories on machines
+ssh -tt $SSH_CON 'sudo rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm'
+
+#Installing Puppet on machines
+ssh -tt $SSH_CON 'sudo yum install puppet'
+
+#Installing svn on machines
+ssh -tt $SSH_CON 'sudo yum install subversion'

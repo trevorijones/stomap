@@ -1,0 +1,147 @@
+---
+#eptica::root_dir:        "/automation"
+eptica::root_dir:        "%{userhome}/local"
+eptica::data_dir:        "%{hiera('eptica::root_dir')}/data"
+eptica::eptica_home_dir: "%{hiera('eptica::root_dir')}/eptica"
+eptica::etc_dir:         "%{hiera('eptica::root_dir')}/etc"
+eptica::opt_dir:         "%{hiera('eptica::root_dir')}/opt"
+eptica::bin_dir:         "%{hiera('eptica::root_dir')}/bin"
+eptica::logs:            "%{hiera('eptica::root_dir')}/logs"
+eptica::var:             "%{hiera('eptica::root_dir')}/var"
+
+eptica::src_dir:         "%{hiera('eptica::data_dir')}/eptica"
+
+# Puppet cron
+puppet::params::user: 'vecko'
+
+
+# MAVEN
+maven::version: "3.0.5"
+tools::maven::params::cmd: "%{eptica::opt_dir}/maven/bin/mvn -U"
+tools::maven::params::url: "http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/%{hiera('maven::version')}/binaries/apache-maven-%{hiera('maven::version')}-bin.tar.gz"
+tools::maven::params::archive_name: "apache-maven-%{hiera('maven::version')}-bin.tar.gz"
+tools::maven::params::digest_url: "http://www.apache.org/dist/maven/maven-3/%{hiera('maven::version')}/binaries/apache-maven-%{hiera('maven::version')}-bin.tar.gz.md5"
+tools::maven::params::target: "%{eptica::opt_dir}"
+
+#TOMCAT
+tomcat::version: "7.0.65"
+tomcat::jmx_port: "1335"
+tools::tomcat::params::url: "http://apache.mirrors.ovh.net/ftp.apache.org/dist/tomcat/tomcat-7/v%{hiera('tomcat::version')}/bin/apache-tomcat-%{hiera('tomcat::version')}.tar.gz"
+tools::tomcat::params::archive_name: "apache-tomcat-%{hiera('tomcat::version')}-bin"
+tools::tomcat::params::server_port: "8005"
+tools::tomcat::params::port: "8080"
+tools::tomcat::params::configure_manager: true
+tools::tomcat::params::jvm_opts: "-Xmx4G -Djava.awt.headless=true"
+tools::tomcat::params::catalina_opts: "-Dcom.sun.management.jmxremote.port=%{hiera('tomcat::jmx_port')} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+# ZOOKEEPER
+# This is a simple standalone configuration
+zookeeper::version: "3.4.6"
+tools::zookeeper::params::url: "http://www.eu.apache.org/dist/zookeeper/zookeeper-%{hiera('zookeeper::version')}/zookeeper-%{hiera('zookeeper::version')}.tar.gz"
+tools::zookeeper::params::archive_name:  "zookeeper-%{hiera('zookeeper::version')}"
+tools::zookeeper::params::target: "%{eptica::opt_dir}"
+tools::zookeeper::params::zookeeper_data: "%{eptica::var}/lib/zookeeper"
+
+tools::zookeeper::params::zookeeper_client_port: "2181"
+tools::zookeeper::params::zookeeper_myid: "1"
+tools::zookeeper::params::ensemble:
+  - server.1=uat01.vecko.com:2182:2183
+  - server.2=uat02.vecko.com:2182:2183
+  - server.3=uat03.vecko.com:2182:2183
+
+# STORM
+storm::version: "0.10.0"
+tools::storm::params::url: "http://apache.crihan.fr/dist/storm/apache-storm-%{hiera('storm::version')}/apache-storm-%{hiera('storm::version')}.tar.gz"
+tools::storm::params::archive_name: "storm-%{hiera('storm::version')}"
+tools::storm::params::ui_port: "8081"
+tools::storm::params::nimbus_host: "uat01.vecko.com"
+tools::storm::params::nimbus_port: "6627"
+tools::storm::params::zookeeper_hosts:
+  - uat01.vecko.com
+  - uat02.vecko.com
+  - uat03.vecko.com
+tools::storm::params::slots_ports:
+  - 6701
+  - 6702
+  - 6703
+
+#LOSGSTASH
+logstash::version: '2.2.1'
+tools::logstash::params::url: "https://download.elastic.co/logstash/logstash/logstash-%{hiera('logstash::version')}.tar.gz"
+tools::logstash::params::archive_name: "logstash-%{hiera('logstash::version')}"
+tools::logstash::params::es_cluster: 'logstash'
+tools::logstash::params::es_host_port: '9500'
+tools::logstash::params::es_host: '127.0.0.1'
+# monitor.uat.vecko.com
+tools::logstash::params::redis_host: '178.33.71.126'
+# bellow are params only for the configuration of logstash shipper or central
+tools::logstash::params::tomcat_jmx_port: "%{hiera('tomcat::jmx_port')}"
+tools::logstash::params::use_stdin: true
+tools::logstash::params::log_els: true
+tools::logstash::params::log_storm: true
+tools::logstash::params::log_haproxy: true
+tools::logstash::params::log_indices_metrics: false
+tools::logstash::params::log_jmx: true
+
+
+#REDIS
+redis::version: '3.0.7'
+tools::redis::params::url: "http://download.redis.io/releases/redis-%{hiera('redis::version')}.tar.gz"
+tools::redis::params::archive_name: "redis-%{hiera('redis::version')}"
+tools::redis::params::bind: "%{ipaddress}" 
+
+#ELASTIC SEARCH
+elasticsearch::version: '2.2.0'
+tools::elasticsearch::params::url: "https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/%{hiera('elasticsearch::version')}/elasticsearch-%{hiera('elasticsearch::version')}.tar.gz"
+tools::elasticsearch::params::archive_name: "elasticsearch-%{hiera('elasticsearch::version')}"
+tools::elasticsearch::params::http_port: '9500'
+tools::elasticsearch::params::transport_tcp_port: '9600'
+tools::elasticsearch::params::node_name: 'smoker'
+tools::elasticsearch::params::cluster_name: 'logstash'
+
+
+#KIBANA
+kibana::version: '4.4.1'
+tools::kibana::params::url: "https://download.elastic.co/kibana/kibana/kibana-%{hiera('kibana::version')}-linux-x64.tar.gz"
+tools::kibana::params::archive_name: "kibana-%{hiera('kibana::version')}"
+tools::kibana::params::host: '0.0.0.0'
+tools::kibana::params::port: '5601'
+tools::kibana::params::elasticsearch_url: "http://localhost:%{hiera('tools::elasticsearch::params::http_port')}"
+
+
+# POSTGRESQL
+#
+tools::postgresql::params::dbuser: "epticadbuser"
+tools::postgresql::params::dbuserpassword: "epticadbuser"
+
+# EPTICA ARTIFACTS TO INSTALL
+#
+# ES
+eptica::es::params::version: "9.2.46"
+eptica::es::params::port: "%{hiera('tools::tomcat::params::port')}"
+eptica::es::params::database_vendor: "POSTGRESQL9"
+eptica::es::params::database_host: "localhost"
+eptica::es::params::database_port: "5432"
+eptica::es::params::database_name: "newlook"
+eptica::es::params::database_user: "epticadbuser"
+eptica::es::params::database_password: "epticadbuser"
+eptica::es::params::search_service_url: "http://uat.vecko.com/els"
+eptica::es::params::search_index_name: es_search
+# ESE
+eptica::ese::params::version: "9.2.2"
+eptica::ese::params::cluster_name: "vecko_ese_cluster"
+eptica::ese::params::node_name: "%{hostname}"
+
+# ELS
+eptica::els::params::version: "9.2.24.integration-SNAPSHOT"
+eptica::els::params::ese_cluster_name: "%{hiera('eptica::ese::params::cluster_name')}"
+eptica::els::params::ese_nodes: "uat01.vecko.com:9300:9200,uat02.vecko.com:9300:9200,uat03.vecko.com:9300:9200"
+
+# VECKO
+eptica::vecko::params::version: "0.0.4.integration-SNAPSHOT"
+eptica::vecko::params::els_url: "http://uat.vecko.com/els"
+eptica::vecko::params::ese_index: "vecko"
+eptica::vecko::params::nimbus_host: "%{hiera('tools::storm::params::nimbus_host')}" 
+eptica::vecko::params::nimbus_port: "%{hiera('tools::storm::params::nimbus_port')}"
+eptica::vecko::params::topology_workers: 3
+eptica::vecko::params::topology_max_spout_pending: -1

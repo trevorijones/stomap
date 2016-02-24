@@ -1,0 +1,22 @@
+usage(){
+ echo "Usage:"
+ echo "$0 -host <hostname> -sudoer <sudoer>"
+}
+
+SUDOER=
+HOST=
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    "-host")
+    HOST="$2"; shift;;
+    "-sudoer")
+    SUDOER="$2"; shift;;
+  esac
+  shift
+done
+
+[ -z "$HOST" ] && echo "Missing host" && usage && exit 1
+[ -z "$SUDOER" ] && echo "Missing sudoer" && usage && exit 1
+
+SSH_CON="${SUDOER}@${HOST}"

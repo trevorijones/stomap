@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+PUPPET_FILES=`find puppet -name *.pp`
+for PP in $PUPPET_FILES
+do
+  echo "FILE $PP"
+  puppet-lint $PP
+done
+

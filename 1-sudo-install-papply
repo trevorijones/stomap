@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Must be sudoer
+# Install automation
+. ./collect-ssh-con
+
+ssh -p 34931 -tt $SSH_CON "svn co http://scm.eptica.com/svn-readonly/repository/eng-tools/trunk/devops/trunk/env /home/$SUDOER/automation && cd /home/$SUDOER/automation && ./sudo-install-puppet-modules && ./sudo-papply.sh"
+ssh -p 34931 -tt $SSH_CON "sudo su vecko -c 'svn co http://scm.eptica.com/svn-readonly/repository/eng-tools/trunk/devops/trunk/env /home/vecko/automation'"
